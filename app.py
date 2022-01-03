@@ -1,4 +1,7 @@
-# Seu código aqui
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
 produtos = [
     {"id": 1, "name": "sabonete", "price": 5.99},
     {"id": 2, "name": "perfume", "price": 39.90},
@@ -31,3 +34,67 @@ produtos = [
     {"id": 29, "name": "coberta", "price": 55.99},
     {"id": 30, "name": "sofa", "price": 600.15}
 ]
+
+@app.get("/products")
+def list_products():
+  
+    return jsonify(produtos), 200;
+
+@app.get("/products/<product_id>")
+def get(product_id : int):
+    number = int(product_id)
+    code = 200
+    elements = []
+    
+    for objects in produtos:
+        if objects["id"] == number:
+            elements = objects
+
+        if elements == []:
+           elements = {"messagem": "elemento nao foi encontrado"},
+           code = 404
+
+    return jsonify(elements), code;
+    
+
+
+@app.post("/products")
+def create():
+    objects = dict(request.json)
+    response ="item não foi criado"
+    code = 401
+    if objects.get("name") and objects.get("price"):
+        objects["id"]=len(produtos)
+        produtos.append(objects)
+        response ="item foi criado"
+        code = 201   
+    return objects,code
+
+@app.patch("/products/<product_id>")
+def update(product_id: int):
+    number =int(product_id)
+    element = dict(request.json)
+    response = jsonify({"messagem":"item não encontrado"})
+    code = 404
+    for obje in produtos:
+        if obje["id"] == number:
+            obje["name"]= element.get("name")
+            obje["price"]= element.get("price")
+            response = jsonify()
+            code = 204
+    return response, code
+
+@app.delete("/products/<product_id>")
+def delete(product_id: int):
+    code=404
+    for item in produtos:
+        if int(product_id) == item["id"]:
+            conter =item["id"]-1
+            produtos.pop(conter)
+            code =204
+            element = jsonify()
+        else:
+           element= jsonify({"messagem": "objeto não encontrado"})
+     
+    return  element, code
+    
