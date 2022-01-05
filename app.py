@@ -43,17 +43,17 @@ def list_products():
 @app.get("/products/<product_id>")
 def get(product_id : int):
     number = int(product_id)
-    code = 200
+    code = 0
     elements = []
     
     for objects in produtos:
         if objects["id"] == number:
-            elements = objects
-
-        if elements == []:
-           elements = {"messagem": "elemento nao foi encontrado"},
-           code = 404
-
+           elements = objects
+           code = 200
+        elif len(elements) == 0:
+             elements = {"messagem": "elemento nao foi encontrado"},
+             code = 404
+             
     return jsonify(elements), code;
     
 
@@ -76,12 +76,20 @@ def update(product_id: int):
     element = dict(request.json)
     response = jsonify({"messagem":"item não encontrado"})
     code = 404
+    name = element.get("name")
+    price = element.get("price")
     for obje in produtos:
         if obje["id"] == number:
-            obje["name"]= element.get("name")
-            obje["price"]= element.get("price")
-            response = jsonify()
-            code = 204
+
+           if name != "" and name != None:
+               obje["name"]= element.get("name")
+              
+            
+           if price != 0 and price!= None:
+               obje["price"]= element.get("price")
+           
+           response = jsonify(obje) 
+           code = 204
     return response, code
 
 @app.delete("/products/<product_id>")
